@@ -1,0 +1,25 @@
+name: Updat major tag when released
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update major git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          full_tag="${{ github.event.release.tag_name }}"
+          major_tag=$(echo "$full_tag" | cut -d. -f1)
+
+          git tag -f "$major_tag" "$full_tag"
+          git push -f origin "refs/tags/$major_tag"
