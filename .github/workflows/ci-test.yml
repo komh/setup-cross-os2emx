@@ -1,0 +1,25 @@
+name: linux-x64
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup cross-os2emx
+        uses: komh/setup-cross-os2emx@v1-test
+
+      - name: Test
+        run: |
+          echo "-----"
+          i686-pc-os2-emx-gcc -v -x c -E /dev/null
+          echo "-----"
+          i686-pc-os2-emx-gcc -v -x c++ -E /dev/null
