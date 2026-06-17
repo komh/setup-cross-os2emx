@@ -65,6 +65,45 @@ runs:
         tar -xzf "$asset_name" -C "$install_dir"
         rm -f "asset_name"
 
+        echo "Setting environment variables..."
+
         ver=${asset_name#cross-os2emx-}
         ver=${ver%-$platform.tar.gz}
-        echo "$install_dir/cross-os2emx-${ver}/opt/os2emx/bin" >> $GITHUB_PATH
+        OS2EMX_PREFIX="$install_dir/cross-os2emx-${ver}/opt/os2emx"
+        OS2EMX_BINDIR="$OS2EMX_PREFIX/bin"
+        OS2EMX_INCLUDEDIR="$OS2EMX_PREFIX/include"
+        OS2EMX_LIBDIR="$OS2EMX_PREFIX/lib"
+
+        target=i686-pc-os2-emx
+        OS2EMX_TARGET_PREFIX="$OS2EMX_PREFIX/$target"
+        OS2EMX_TARGET_BINDIR="$OS2EMX_TARGET_PREFIX/bin"
+        OS2EMX_TARGET_INCLUDEDIR="$OS2EMX_TARGET_PREFIX/include"
+        OS2EMX_TARGET_LIBDIR="$OS2EMX_TARGET_PREFIX/lib"
+
+        OS2EMX_MESON_CROSS_FILE_AOUT="$OS2EMX_PREFIX/share/meson/cross/$target-aout.txt"
+        OS2EMX_MESON_CROSS_FILE_OMF="$OS2EMX_PREFIX/share/meson/cross/$target-omf.txt"
+        OS2EMX_CMAKE_TOOLCHAIN_FILE="$OS2EMX_PREFIX/share/cmake/cross/$target.cmake"
+
+        echo "OS2EMX_PREFIX=$OS2EMX_PREFIX" >> $GITHUB_ENV
+        echo "OS2EMX_BINDIR=$OS2EMX_BINDIR" >> $GITHUB_ENV
+        echo "OS2EMX_INCLUDEDIR=$OS2EMX_INCLUDEDIR" >> $GITHUB_ENV
+        echo "OS2EMX_LIBDIR=$OS2EMX_LIBDIR" >> $GITHUB_ENV
+
+        echo "OS2EMX_TARGET_PREFIX=$OS2EMX_TARGET_PREFIX" >> $GITHUB_ENV
+        echo "OS2EMX_TARGET_BINDIR=$OS2EMX_TARGET_BINDIR" >> $GITHUB_ENV
+        echo "OS2EMX_TARGET_INCLUDEDIR=$OS2EMX_TARGET_INCLUDEDIR" >> $GITHUB_ENV
+        echo "OS2EMX_TARGET_LIBDIR=$OS2EMX_TARGET_LIBDIR" >> $GITHUB_ENV
+
+        echo "OS2EMX_MESON_CROSS_FILE_AOUT=$OS2EMX_MESON_CROSS_FILE_AOUT" >> $GITHUB_ENV
+        echo "OS2EMX_MESON_CROSS_FILE_OMF=$OS2EMX_MESON_CROSS_FILE_OMF" >> $GITHUB_ENV
+        echo "OS2EMX_CMAKE_TOOLCHAIN_FILE=$OS2EMX_CMAKE_TOOLCHAIN_FILE" >> $GITHUB_ENV
+
+        echo "$OS2EMX_BINDIR" >> $GITHUB_PATH
+
+        echo "Patching cross files..."
+        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_MESON_CROSS_FILE_AOUT" > "$OS2EMX_MESON_CROSS_FILE_AOUT.new"
+        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_MESON_CROSS_FILE_OMF" > "$OS2EMX_MESON_CROSS_FILE_OMF.new"
+        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_CMAKE_TOOLCHAIN_FILE" > "$OS2EMX_CMAKE_TOOLCHAIN_FILE.new"
+        mv "$OS2EMX_MESON_CROSS_FILE_AOUT.new" "$OS2EMX_MESON_CROSS_FILE_AOUT"
+        mv "$OS2EMX_MESON_CROSS_FILE_OMF.new" "$OS2EMX_MESON_CROSS_FILE_OMF"
+        mv "$OS2EMX_CMAKE_TOOLCHAIN_FILE.new" "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
