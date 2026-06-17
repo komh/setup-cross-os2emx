@@ -107,3 +107,13 @@ runs:
         mv "$OS2EMX_MESON_CROSS_FILE_AOUT.new" "$OS2EMX_MESON_CROSS_FILE_AOUT"
         mv "$OS2EMX_MESON_CROSS_FILE_OMF.new" "$OS2EMX_MESON_CROSS_FILE_OMF"
         mv "$OS2EMX_CMAKE_TOOLCHAIN_FILE.new" "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
+
+        echo "Installing pthread and os2tk45..."
+
+        install_lib_cmd="$OS2EMX_BINDIR/installrpmzip"
+        "$install_lib_cmd" pthread-0_2_6-1
+        "$install_lib_cmd" os2tk45-4_5_2-10
+
+        echo "Setting C_INCLUDE_PATH and CPLUS_INCLUDE_PATH..."
+        echo "C_INCLUDE_PATH=$OS2EMX_TARGET_INCLUDEDIR;$OS2EMX_TARGET_INCLUDEDIR/os2tk45${C_INCLUDE_PATH:+;}$C_INCLUDE_PATH" >> $GITHUB_ENV
+        echo "CPLUS_INCLUDE_PATH=$OS2EMX_TARGET_INCLUDEDIR;$OS2EMX_TARGET_INCLUDEDIR/os2tk45${CPLUS_INCLUDE_PATH:+;}$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
