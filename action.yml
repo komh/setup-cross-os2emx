@@ -1,0 +1,70 @@
+name: 'Setup cross-os2emx'
+
+inputs:
+  version:
+    required: false
+    default: 'latest'
+  platform:
+    required: false
+    default: 'auto'
+  github-token:
+    required: false
+    default: '${{ github.token }}'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup cross-os2emx
+      shell: bash
+      run: |
+        repo="komh/cross-os2emx"
+        ver="${{ inputs.version }}"
+        ver=${ver#v}
+        token="${{ inputs.github-token }}"
+        platform="${{ inputs.platform }}"
+
+        if [ "$platform" = "auto" ] || [ -z "$platform" ]; then
+          platform="${RUNNER_OS}-${RUNNER_ARCH}"
+        fi
+        platform=$(echo "$platform" | tr '[:upper:]' '[:lower:]')
+
+        case "$platform" in
+          "linux-x64" | "macos-arm64" | "macos-x64")
+            ;;
+          *)
+            echo "::error::[$platform] is not supported!!!"
+            echo "::error::Supported platforms : linux-x64, macos-arm64, macos-x64"
+            exit 1
+            ;;
+        esac
+
+        pattern="cross-os2emx-.*${platform}\\.tar\\.gz$"
+
+        if [ "$ver" = "latest" ]; then
+          api_url="https://api.github.com/repos/$repo/releases/latest"
+        else
+          api_url="https://api.github.com/repos/$repo/releases/tags/$ver"
+        fi
+
+        release_json=$(curl -s -H "Authorization: token $token" "$api_url")
+
+        download_url=$(echo "$release_json" | jq -r --arg pat "$pattern" '.assets[] | select(.name | test($pat)) | .browser_download_url' | head -n 1)
+        asset_name=$(echo "$release_json" | jq -r --arg pat "$pattern" '.assets[] | select(.name | test($pat)) | .name' | head -n 1)
+
+        if [ -z "$download_url" ] || [ "$download_url" = "null" ]; then
+          echo "::error::No such a release for [$ver]"
+          exit 1
+        fi
+
+        echo "Installing $asset_name..."
+
+        install_dir="$HOME/.cross-os2emx"
+        mkdir -p "$install_dir"
+
+        curl -L -H "Authorization: token $token" -o "$asset_name" "$download_url"
+        tar -xzf "$asset_name" -C "$install_dir"
+        rm -f "asset_name"
+
+        ver=${asset_name#cross-os2emx-}
+        ver=${ver%-$platform.tar.gz}
+        echo "$install_dir/cross-os2emx-${ver}/opt/os2emx/bin" >> $GITHUB_PATH
