@@ -58,18 +58,16 @@ runs:
 
         echo "Installing $asset_name..."
 
-        install_dir="$HOME/.cross-os2emx"
+        install_dir="$HOME"
         mkdir -p "$install_dir"
 
         curl -L -H "Authorization: token $token" -o "$asset_name" "$download_url"
-        tar -xzf "$asset_name" -C "$install_dir"
+        tar -xzf "$asset_name" -C "$install_dir" --strip-components=1
         rm -f "asset_name"
 
         echo "Setting environment variables..."
 
-        ver=${asset_name#cross-os2emx-}
-        ver=${ver%-$platform.tar.gz}
-        OS2EMX_PREFIX="$install_dir/cross-os2emx-${ver}/opt/os2emx"
+        OS2EMX_PREFIX="$install_dir/opt/os2emx"
         OS2EMX_BINDIR="$OS2EMX_PREFIX/bin"
         OS2EMX_INCLUDEDIR="$OS2EMX_PREFIX/include"
         OS2EMX_LIBDIR="$OS2EMX_PREFIX/lib"
@@ -99,14 +97,6 @@ runs:
         echo "OS2EMX_CMAKE_TOOLCHAIN_FILE=$OS2EMX_CMAKE_TOOLCHAIN_FILE" >> $GITHUB_ENV
 
         echo "$OS2EMX_BINDIR" >> $GITHUB_PATH
-
-        echo "Patching cross files..."
-        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_MESON_CROSS_FILE_AOUT" > "$OS2EMX_MESON_CROSS_FILE_AOUT.new"
-        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_MESON_CROSS_FILE_OMF" > "$OS2EMX_MESON_CROSS_FILE_OMF.new"
-        sed -e "s,/home/runner/opt/os2emx,$OS2EMX_PREFIX,g" < "$OS2EMX_CMAKE_TOOLCHAIN_FILE" > "$OS2EMX_CMAKE_TOOLCHAIN_FILE.new"
-        mv "$OS2EMX_MESON_CROSS_FILE_AOUT.new" "$OS2EMX_MESON_CROSS_FILE_AOUT"
-        mv "$OS2EMX_MESON_CROSS_FILE_OMF.new" "$OS2EMX_MESON_CROSS_FILE_OMF"
-        mv "$OS2EMX_CMAKE_TOOLCHAIN_FILE.new" "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
 
         echo "Installing pthread and os2tk45..."
 
