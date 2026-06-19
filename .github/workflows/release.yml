@@ -1,25 +1,27 @@
-name: Updat major tag when released
+name: Release
 
 on:
-  release:
-    types: [released]
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  update-tag:
+  release:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Release with notes
+        uses: softprops/action-gh-release@v2
         with:
-          fetch-depth: 0
-
-      - name: Update major git tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          full_tag="${{ github.event.release.tag_name }}"
-          major_tag=$(echo "$full_tag" | cut -d. -f1)
-
-          git tag -f "$major_tag" "$full_tag"
-          git push -f origin "refs/tags/$major_tag"
+          name: Setup-cross-os2emx ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
