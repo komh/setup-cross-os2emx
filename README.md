@@ -31,13 +31,16 @@ cmake -S . -B builddir -G Ninja -DCMAKE_TOOLCHAIN_FILE=$OS2EMX_CMAKE_TOOLCHAIN_F
 ```
 
 # History
-* v1.1.1 (20206/06/18)
+* v1.1.2 (2026/06/19)
+  * Fixed libtoolize fails
+
+* v1.1.1 (2026/06/18)
   * Fixed include path for os2tk45
 
 * v1.1.0 (2026/06/18)
   * Set env vars for cross-os2emx
     * `OS2EMX_PREFIX`, `OS2EMX_BINDIR`, `OS2EMX_INCLUDEDIR`, `OS2EMX_LIBDIR`, `OS2EMX_TARGET_PREFIX`, `OS2EMX_TARGET_BINDIR`, `OS2EMX_TARGET_INCLUDEDIR`, `OS2EMX_TARGET_LIBDIR`, `OS2EMX_MESON_CROSS_FILE_AOUT`, `OS2EMX_MESON_CROSS_FILE_OMF`, `OS2EMX_CMAKE_TOOLCHAIN_FILE`
   * Install `pthread` and `os2tk45` by default
-  
+
 * v1.0.0 (2026/06/17)
   * Initial release
