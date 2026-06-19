@@ -25,3 +25,9 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update_tag:
+    needs: release
+    uses: ./.github/workflows/update-tag.yml
+    with:
+      tag_name: ${{ github.ref_name }}
