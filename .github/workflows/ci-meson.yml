@@ -1,0 +1,46 @@
+name: CI-meson
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '.github/FUNDING.yml'
+
+  pull_request:
+    paths-ignore:
+      - '.gitignore'
+      - '.github/FUNDING.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup cross-os2emx
+        uses: komh/setup-cross-os2emx@master
+
+      - name: Checkout libdvdcss
+        uses: actions/checkout@v6
+        with:
+          repository: 'komh/libdvdcss-os2'
+
+      - name: Setup build
+        run: |
+          mkdir build
+          meson setup build --prefix=/@unixroot/usr --default-library=both \
+            --cross-file="$OS2EMX_MESON_CROSS_FILE_AOUT"
+
+      - name: Build
+        run: |
+          ninja -C build
+
+      - name: Install
+        run: |
+          meson install -C build --destdir="${{ github.workspace }}/libdvdcss"
