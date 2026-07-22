@@ -106,3 +106,9 @@ runs:
 
         echo "Setting GCCOPT for os2tk45..."
         echo "GCCOPT=$GCCOPT${GCCOPT:+ }-idirafter $OS2EMX_TARGET_INCLUDEDIR/os2tk45" >> $GITHUB_ENV
+
+        echo "Setting PKG_CONFIG_LIBDIR..."
+        echo "PKG_CONFIG_LIBDIR=$OS2EMX_TARGET_LIBDIR/pkgconfig:$OS2EMX_LIBDIR/pkgconfig${PKG_CONFIG_LIBDIR:+:}$PKG_CONFIG_LIBDIR" >> $GITHUB_ENV
+
+        echo "Setting ACLOCAL_PATH..."
+        echo "ACLOCAL_PATH=$OS2EMX_TARGET_PREFIX/share/aclocal:$OS2EMX_PREFIX/share/aclocal${ACLOCAL_PATH:+:}$ACLOCAL_PATH" >> $GITHUB_ENV
