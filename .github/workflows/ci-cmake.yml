@@ -1,0 +1,55 @@
+name: CI-cmake
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '.github/FUNDING.yml'
+      - '.github/workflows/ci-autotools.yml'
+      - '.github/workflows/ci-meson.yml'
+
+  pull_request:
+    paths-ignore:
+      - '.gitignore'
+      - '.github/FUNDING.yml'
+      - '.github/workflows/ci-autotools.yml'
+      - '.github/workflows/ci-meson.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup cross-os2emx
+        uses: komh/setup-cross-os2emx@master
+
+      - name: Checkout FreeType2
+        uses: actions/checkout@v6
+        with:
+          repository: 'komh/freetype2-os2'
+
+      - name: Setup build
+        run: |
+          installrpmzip zlib-1_3-1
+          installrpmzip bzip2-1_0_8-1
+
+          mkdir build
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/@unixroot/usr -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$OS2EMX_CMAKE_TOOLCHAIN_FILE" \
+            -DZLIB_LIBRARY="$OS2EMX_TARGET_LIBDIR" \
+            -DZLIB_INCLUDE_DIR="$OS2EMX_TARGET_INCLUDEDIR"
+
+      - name: Build
+        run: |
+          ninja -C build
+
+      - name: Install
+        run: |
+          DESTDIR="${{ github.workspace }}/freetype2" ninja -C build install
