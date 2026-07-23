@@ -10,12 +10,26 @@ inputs:
   github-token:
     required: false
     default: '${{ github.token }}'
+  rpmzip-deps:
+    required: false
+    default: ''
+  zip-deps:
+    required: false
+    default: ''
+  rpm-deps:
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
   steps:
     - name: Setup cross-os2emx
       shell: bash
+      env:
+        RPMZIP_DEPS: ${{ inputs.rpmzip-deps }}
+        ZIP_DEPS: ${{ inputs.zip-deps }}
+        RPM_DEPS: ${{ inputs.rpm-deps }}
+
       run: |
         repo="komh/cross-os2emx"
         ver="${{ inputs.version }}"
@@ -98,11 +112,14 @@ runs:
 
         echo "$OS2EMX_BINDIR" >> $GITHUB_PATH
 
-        echo "Installing pthread and os2tk45..."
+        echo "Installing pthread, os2tk45, and requested deps..."
 
         export PATH="$OS2EMX_BINDIR${PATH:+:}$PATH"
-        installrpmzip pthread-0_2_6-1
-        installrpmzip os2tk45-4_5_2-10
+        set -f
+        installrpmzip pthread os2tk45 $RPMZIP_DEPS
+        [ -z "$ZIP_DEPS" ] || installzip $ZIP_DEPS
+        [ -z "$RPM_DEPS" ] || installrpm $RPM_DEPS
+        set +f
 
         echo "Setting GCCOPT for os2tk45..."
         echo "GCCOPT=$GCCOPT${GCCOPT:+ }-idirafter $OS2EMX_TARGET_INCLUDEDIR/os2tk45" >> $GITHUB_ENV
