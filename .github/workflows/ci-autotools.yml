@@ -27,8 +27,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout setup-cross-os2emx
+        uses: actions/checkout@v6
+
       - name: Setup cross-os2emx
-        uses: komh/setup-cross-os2emx@master
+        uses: ./.
 
       - name: Checkout liba52
         uses: actions/checkout@v6
