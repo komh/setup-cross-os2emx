@@ -100,9 +100,9 @@ runs:
 
         echo "Installing pthread and os2tk45..."
 
-        install_lib_cmd="$OS2EMX_BINDIR/installrpmzip"
-        "$install_lib_cmd" pthread-0_2_6-1
-        "$install_lib_cmd" os2tk45-4_5_2-10
+        export PATH="$OS2EMX_BINDIR${PATH:+:}$PATH"
+        installrpmzip pthread-0_2_6-1
+        installrpmzip os2tk45-4_5_2-10
 
         echo "Setting GCCOPT for os2tk45..."
         echo "GCCOPT=$GCCOPT${GCCOPT:+ }-idirafter $OS2EMX_TARGET_INCLUDEDIR/os2tk45" >> $GITHUB_ENV
