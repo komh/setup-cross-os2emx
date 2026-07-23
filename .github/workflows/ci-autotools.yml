@@ -7,11 +7,15 @@ on:
     paths-ignore:
       - '.gitignore'
       - '.github/FUNDING.yml'
+      - '.github/workflows/ci-meson.yml'
+      - '.github/workflows/ci-cmake.yml'
 
   pull_request:
     paths-ignore:
       - '.gitignore'
       - '.github/FUNDING.yml'
+      - '.github/workflows/ci-meson.yml'
+      - '.github/workflows/ci-cmake.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
