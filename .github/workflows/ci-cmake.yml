@@ -40,14 +40,16 @@ jobs:
 
       - name: Setup build
         run: |
-          installrpmzip zlib-1_3-1
-          installrpmzip bzip2-1_0_8-1
+          installrpmzip zlib bzip2
+          installzip https://github.com/komh/libpng-os2/releases/download/1.6.28-os2-r1/libpng-1.6.28.zip
+
+          # Workaround for the cmake toolchain file missing CMAKE_PREFIX_PATH
+          # Without this, CMake fails to search packages.
+          echo 'list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SYSROOT}")' >> "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
 
           mkdir build
           cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/@unixroot/usr -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE="$OS2EMX_CMAKE_TOOLCHAIN_FILE" \
-            -DZLIB_LIBRARY="$OS2EMX_TARGET_LIBDIR" \
-            -DZLIB_INCLUDE_DIR="$OS2EMX_TARGET_INCLUDEDIR"
+            -DCMAKE_TOOLCHAIN_FILE="$OS2EMX_CMAKE_TOOLCHAIN_FILE"
 
       - name: Build
         run: |
