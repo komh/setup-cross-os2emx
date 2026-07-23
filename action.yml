@@ -10,6 +10,13 @@ inputs:
   github-token:
     required: false
     default: '${{ github.token }}'
+  use-exp-rpm:
+    required: false
+    type: boolean
+    default: false
+  rpm-arch:
+    required: false
+    default: 'pentium4'
   rpmzip-deps:
     required: false
     default: ''
@@ -114,11 +121,20 @@ runs:
 
         echo "Installing pthread, os2tk45, and requested deps..."
 
+        [ "${{ inputs.use-exp-rpm }}" = "false" ] || exp_rpm_opt=-e
+
+        if [ -z "${{ inputs.rpm-arch }}" ]; then
+          rpm_arch_opt="-a penitum4"
+        else
+          rpm_arch_opt="-a ${{ inputs.rpm-arch }}"
+        fi
+
         export PATH="$OS2EMX_BINDIR${PATH:+:}$PATH"
+
         set -f
-        installrpmzip pthread os2tk45 $RPMZIP_DEPS
+        installrpmzip $exp_rpm_opt pthread os2tk45 $RPMZIP_DEPS
         [ -z "$ZIP_DEPS" ] || installzip $ZIP_DEPS
-        [ -z "$RPM_DEPS" ] || installrpm $RPM_DEPS
+        [ -z "$RPM_DEPS" ] || installrpm $exp_rpm_opt $rpm_arch_opt $RPM_DEPS
         set +f
 
         echo "Setting GCCOPT for os2tk45..."

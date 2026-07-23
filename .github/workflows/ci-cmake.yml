@@ -33,6 +33,8 @@ jobs:
       - name: Setup cross-os2emx
         uses: ./.
         with:
+          use-exp-rpm: true
+          rpm-arch: 'pentium4'
           rpm-deps: |
             zlib-devel
             bzip2-devel
