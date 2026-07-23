@@ -129,3 +129,8 @@ runs:
 
         echo "Setting ACLOCAL_PATH..."
         echo "ACLOCAL_PATH=$OS2EMX_TARGET_PREFIX/share/aclocal:$OS2EMX_PREFIX/share/aclocal${ACLOCAL_PATH:+:}$ACLOCAL_PATH" >> $GITHUB_ENV
+
+        # Workaround for the cmake toolchain file missing CMAKE_SYSTEM_PREFIX_PATH.
+        # Without this, CMake fails to search packages.
+        echo 'Appending $CMAKE_SYSROOT to CMAKE_SYSTEM_PREFIX_PATH...'
+        echo 'list(APPEND CMAKE_SYSTEM_PREFIX_PATH "${CMAKE_SYSROOT}")' >> "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
