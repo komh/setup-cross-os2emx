@@ -47,10 +47,6 @@ jobs:
 
       - name: Setup build
         run: |
-          # Workaround for the cmake toolchain file missing CMAKE_PREFIX_PATH
-          # Without this, CMake fails to search packages.
-          echo 'list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SYSROOT}")' >> "$OS2EMX_CMAKE_TOOLCHAIN_FILE"
-
           mkdir build
           cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/@unixroot/usr -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE="$OS2EMX_CMAKE_TOOLCHAIN_FILE"
